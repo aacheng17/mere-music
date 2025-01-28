@@ -2,6 +2,7 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { motion } from "motion/react"
 
 function App() {
   const [count, setCount] = useState(0)
@@ -21,6 +22,16 @@ function App() {
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </button>
+        <motion.ul 
+          style={{
+            width: 100,
+            height: 100,
+            backgroundColor: "#ff0088",
+            borderRadius: 5,
+          }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1 }}
+        />
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
