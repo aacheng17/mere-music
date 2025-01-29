@@ -1,6 +1,7 @@
 import React from "react";
 import { AnimatePresence, motion } from "motion/react"
 import { allScaleTypes, ScaleType } from "../Models";
+import { IntInput } from "./IntInput";
 
 export interface IStringSettingsModel {
   referenceNote: number,
@@ -40,11 +41,11 @@ export const StringSettings = (props: {
 
   // GENERAL
   const generalTab = React.useMemo(() => {
-    return <>
-      <motion.input type="number" value={settings.referenceNote} onChange={makeHandleChangeInt('referenceNote', 100, 1000)}/>
-      <motion.input type="number" value={settings.notesPerOctave} onChange={makeHandleChangeInt('notesPerOctave', 1, 20)}/>
-    </>
-  }, [makeHandleChangeInt, settings.notesPerOctave, settings.referenceNote])
+    return <motion.div style={tabBody}>
+      <IntInput label="Reference frequency" value={settings.referenceNote} onChange={(n) => handleChangeSettings({ referenceNote: n })} min={100} max={1000} />
+      <IntInput label="Notes per octave" value={settings.notesPerOctave} onChange={(n) => handleChangeSettings({ notesPerOctave: n })} min={1} max={20} />
+    </motion.div>
+  }, [handleChangeSettings, settings.notesPerOctave, settings.referenceNote])
 
   // SCALE
   const scaleTab = React.useMemo(() => {
@@ -57,12 +58,12 @@ export const StringSettings = (props: {
         })}
     </motion.select>)
     
-    return <>
+    return <motion.div style={tabBody}>
       {scaleTypeSelect}
       {
         settings.scaleType === ScaleType.JUST && (<>
           <motion.input type="checkbox" checked={settings.powersOf2Only} onChange={makeHandleToggleBool('powersOf2Only')}/>
-          <motion.input type="number" defaultValue={settings.highestDenominator} onChange={makeHandleChangeInt('highestDenominator', 8, 32)}/>
+          <IntInput label="Highest denominator" value={settings.highestDenominator} onChange={(n) => handleChangeSettings({ highestDenominator: n })} min={8} max={32} />
         </>)
       }
       {
@@ -71,15 +72,15 @@ export const StringSettings = (props: {
           <motion.input type="number" defaultValue={settings.baseDen} onChange={makeHandleChangeInt('baseDen', 100, 1000)}/>
         </>)
       }
-    </>
+    </motion.div>
   }, [handleChangeSettings, makeHandleChangeInt, makeHandleToggleBool, settings.baseDen, settings.baseNum, settings.highestDenominator, settings.powersOf2Only, settings.scaleType])
 
 
   // APPEARANCE
   const appearanceTab = React.useMemo(() => {
-    return <>
+    return <motion.div style={tabBody}>
       <motion.input type="checkbox" checked={settings.logView} onChange={makeHandleToggleBool('logView')}/>
-    </>
+    </motion.div>
   }, [makeHandleToggleBool, settings.logView])
 
   const tabs = React.useMemo(() => [
@@ -119,6 +120,7 @@ export const StringSettings = (props: {
     <main style={iconContainer}>
       <AnimatePresence mode="wait">
         <motion.div
+          style={{ width: "100%" }}
           key={tabs[selectedTab].label}
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -190,4 +192,16 @@ const iconContainer: React.CSSProperties = {
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
+    backgroundColor: "white"
+}
+
+const tabBody: React.CSSProperties = {
+  width: "100%",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center",
+  gap: "16px",
+  paddingTop: "24px",
+  paddingBottom: "32px",
+  color: "#0f1115"
 }
