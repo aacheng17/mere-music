@@ -1,48 +1,34 @@
 import React from 'react'
 import { motion } from "motion/react"
-import './String.css'
+import { Freq } from '../Models';
 
 export const String = (props: {
   layoutId: string,
-  freq: number,
-  referenceNote: number,
+  freq: Freq,
   logView: boolean,
-  hoveredFreq?: number,
+  isSemiHover: boolean,
   onHoverStart?: ()=>void,
-  onHoverEnd?: ()=>void;
+  onHoverEnd?: ()=>void
 }) => {
-  const { layoutId, freq, referenceNote, logView, hoveredFreq, onHoverStart, onHoverEnd } = props
+  const { layoutId, freq, logView, isSemiHover, onHoverStart, onHoverEnd } = props
 
-  const height = React.useMemo(() => logView ? Math.log(freq)*100 : freq, [freq, logView])
-
-  const hoverScaleY = React.useMemo(() => {
-    return 15 / height + 1
-  }, [height])
-
-  const backgroundColor = React.useMemo(() => {
-    if (referenceNote === freq) return "#3700b3"
-    if (Number.isInteger(referenceNote/freq) || Number.isInteger(freq/referenceNote)) return "#6200EE"
-    return "#03dac6"
-  }, [freq, referenceNote])
-
-  const isSemiHover = React.useMemo(() => {
-    if (!hoveredFreq) return false
-    if (Number.isInteger(hoveredFreq/freq) || Number.isInteger(freq/hoveredFreq)) return true
-  }, [freq, hoveredFreq])
-
-  const className = React.useMemo(() => {
-    let s = 'mm-string-container'
-    if (isSemiHover) s += ' semi-hover'
-    return s
-  }, [isSemiHover])
+  const height: number = React.useMemo(() => logView ? Math.log(freq.absoluteFreq)*100 : freq.absoluteFreq, [freq.absoluteFreq, logView])
+  const hoverScaleY = React.useMemo(() => 15 / height + 1, [height])
+  const backgroundColor = React.useMemo(() => `hsl(${(360 * (2 - freq.ratio)) / 4 + 200}, 70%, 65%)`, [freq])
+  const roundedFreq = React.useMemo(() => (Math.round(freq.absoluteFreq * 100) / 100).toFixed(2), [freq.absoluteFreq])
 
   const animate = React.useMemo(() => {
     if (isSemiHover) return { scaleY: hoverScaleY, scaleX: 1.2 }
-    return {}
-  },[hoverScaleY, isSemiHover])
+    return { scaleY: 1, scaleX: 1 }
+  }, [hoverScaleY, isSemiHover])
 
-  return (<div className={className}>
-    <motion.div className='mm-string-label' animate={{ rotate: -90 }}>{freq}</motion.div>
+  const stringLabel: React.CSSProperties = React.useMemo(() => {
+    return { width: '0px', visibility: isSemiHover ? 'visible' : 'hidden' }
+  }, [isSemiHover])
+
+  return (
+    <motion.div style={stringContainer}>
+    <motion.div style={stringLabel} animate={{ rotate: -90 }}>{roundedFreq}</motion.div>
     <motion.div
       layoutId={layoutId}
       style={{
@@ -62,5 +48,11 @@ export const String = (props: {
       onHoverStart={onHoverStart}
       onHoverEnd={onHoverEnd}
     />
-  </div>)
+  </motion.div>)
+}
+
+const stringContainer: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center'
 }

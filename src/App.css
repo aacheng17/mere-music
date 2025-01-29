@@ -5,10 +5,3 @@
   padding: 2rem;
   text-align: center;
 }
-
-.mm-strings-container {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  justify-content: space-between;
-}
