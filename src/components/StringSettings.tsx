@@ -1,7 +1,8 @@
 import React from "react";
 import { AnimatePresence, motion } from "motion/react"
 import { allScaleTypes, ScaleType } from "../Models";
-import { IntInput } from "./IntInput";
+import { IntInput } from "./input/IntInput";
+import { BoolInput } from "./input/BoolInput";
 
 export interface IStringSettingsModel {
   referenceNote: number,
@@ -28,10 +29,6 @@ export const StringSettings = (props: {
       ...newSettings
     })
   }, [onChangeSettings, settings])
-
-  const makeHandleToggleBool = React.useCallback((settingName: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleChangeSettings({[settingName]: !settings[settingName]})
-  },[handleChangeSettings, settings])
 
   const makeHandleChangeInt = React.useCallback((settingName: string, min: number, max: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const n = parseInt(e.target.value, 10)
@@ -62,7 +59,7 @@ export const StringSettings = (props: {
       {scaleTypeSelect}
       {
         settings.scaleType === ScaleType.JUST && (<>
-          <motion.input type="checkbox" checked={settings.powersOf2Only} onChange={makeHandleToggleBool('powersOf2Only')}/>
+          <BoolInput label="Power of 2 only" value={settings.powersOf2Only} onChange={(n) => handleChangeSettings({ powersOf2Only: n})} />
           <IntInput label="Highest denominator" value={settings.highestDenominator} onChange={(n) => handleChangeSettings({ highestDenominator: n })} min={8} max={32} />
         </>)
       }
@@ -73,15 +70,15 @@ export const StringSettings = (props: {
         </>)
       }
     </motion.div>
-  }, [handleChangeSettings, makeHandleChangeInt, makeHandleToggleBool, settings.baseDen, settings.baseNum, settings.highestDenominator, settings.powersOf2Only, settings.scaleType])
+  }, [handleChangeSettings, makeHandleChangeInt, settings.baseDen, settings.baseNum, settings.highestDenominator, settings.powersOf2Only, settings.scaleType])
 
 
   // APPEARANCE
   const appearanceTab = React.useMemo(() => {
     return <motion.div style={tabBody}>
-      <motion.input type="checkbox" checked={settings.logView} onChange={makeHandleToggleBool('logView')}/>
+      <BoolInput label="Log view" value={settings.logView} onChange={(n) => handleChangeSettings({ logView: n})} />
     </motion.div>
-  }, [makeHandleToggleBool, settings.logView])
+  }, [handleChangeSettings, settings.logView])
 
   const tabs = React.useMemo(() => [
     { label: "General", body: generalTab },
