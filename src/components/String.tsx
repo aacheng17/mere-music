@@ -12,7 +12,13 @@ export const String = (props: {
 }) => {
   const { layoutId, freq, logView, isSemiHover, onHoverStart, onHoverEnd } = props
 
-  const height: number = React.useMemo(() => logView ? Math.log(freq.absoluteFreq)*100 : freq.absoluteFreq, [freq.absoluteFreq, logView])
+  const height: number = React.useMemo(() => {
+    const wavelength = logView ?
+      Math.log(20000 / freq.absoluteFreq) :
+      343/ freq.absoluteFreq
+    return wavelength * 100
+  }, [freq.absoluteFreq, logView])
+
   const hoverScaleY = React.useMemo(() => 15 / height + 1, [height])
   const backgroundColor = React.useMemo(() => `hsl(${(360 * (2 - freq.ratio)) / 4 + 200}, 70%, 65%)`, [freq])
   const roundedFreq = React.useMemo(() => (Math.round(freq.absoluteFreq * 100) / 100).toFixed(2), [freq.absoluteFreq])

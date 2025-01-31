@@ -4,6 +4,7 @@ import { String } from './components/String'
 import { motion } from "motion/react"
 import { IStringSettingsModel, StringSettings } from './components/StringSettings'
 import { Freq, ScaleType } from './Models'
+import { NoteInfoPanel } from './components/NoteInfoPanel'
 
 const getGcd = (a:number,b:number): number => {
   return b ? getGcd(b, a%b) : a;
@@ -137,7 +138,7 @@ function App() {
       return (<String
         layoutId={`string${i}`}
         freq={n}
-        isSemiHover={hoveredStringIndex && (i % stringSettings.notesPerOctave === hoveredStringIndex % stringSettings.notesPerOctave) || false}
+        isSemiHover={hoveredStringIndex !== undefined && (i % stringSettings.notesPerOctave === hoveredStringIndex % stringSettings.notesPerOctave) || false}
         logView={stringSettings.logView}
         onHoverStart={() => setHoveredStringIndex(i)}
         onHoverEnd={() => setHoveredStringIndex(undefined)}
@@ -148,6 +149,7 @@ function App() {
   return (
     <>
       <StringSettings settings={stringSettings} onChangeSettings={(settings: IStringSettingsModel) => setStringSettings(settings)} />
+      <NoteInfoPanel primaryNote={hoveredStringIndex ? notes[hoveredStringIndex] : undefined} />
       <motion.div style={stringsContainer}>
         {stringElements}
       </motion.div>
@@ -158,8 +160,9 @@ function App() {
 const stringsContainer: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'row',
-  width: '100%',
-  justifyContent: 'space-between'
+  gap: '3px',
+  width: 'min-content',
+  margin: 'auto'
 }
 
 export default App

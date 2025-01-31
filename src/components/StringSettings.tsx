@@ -5,6 +5,7 @@ import { IntInput } from "./input/IntInput";
 import { BoolInput } from "./input/BoolInput";
 import { RatioInput } from "./input/RatioInput";
 import { SelectInput } from "./input/SelectInput";
+import { panel } from "./ComponentStyle";
 
 export interface IStringSettingsModel {
   referenceNote: number,
@@ -106,7 +107,7 @@ export const StringSettings = (props: {
           ))}
       </ul>
     </nav>
-    <main style={iconContainer}>
+    <main style={bodyContainer}>
       <AnimatePresence mode="wait">
         <motion.div
           style={{ width: "100%" }}
@@ -148,48 +149,46 @@ const tabsContainer: React.CSSProperties = {
 }
 
 const tab: React.CSSProperties = {
-    ...tabsStyles,
-    borderRadius: 5,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    width: "100%",
-    padding: "10px 15px",
-    position: "relative",
-    background: "white",
-    cursor: "pointer",
-    height: 24,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flex: 1,
-    minWidth: 0,
-    userSelect: "none",
-    color: "#0f1115",
+  ...tabsStyles,
+  borderRadius: 5,
+  borderBottomLeftRadius: 0,
+  borderBottomRightRadius: 0,
+  width: "100%",
+  padding: "10px 15px",
+  position: "relative",
+  background: "white",
+  cursor: "pointer",
+  height: 24,
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  flex: 1,
+  minWidth: 0,
+  userSelect: "none",
+  color: "#0f1115",
 }
 
 const underline: React.CSSProperties = {
-    position: "absolute",
-    bottom: -2,
-    left: 0,
-    right: 0,
-    height: 2,
-    backgroundColor: "aqua"
+  position: "absolute",
+  bottom: -2,
+  left: 0,
+  right: 0,
+  height: 2,
+  backgroundColor: "aqua"
 }
 
-const iconContainer: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1,
-    backgroundColor: "white"
+const bodyContainer: React.CSSProperties = {
+  ...panel,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  flex: 1
 }
 
 const tabBody: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  gap: "24px",
-  padding: "24px",
-  color: "#0f1115"
+  gap: "24px"
 }
 
 const settingsRow: React.CSSProperties = {
