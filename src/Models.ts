@@ -1,5 +1,6 @@
 export const stringWidth = 8
 export const stringGap = 3
+export const distanceBetweenStringCenters = stringWidth + stringGap
 
 export class Freq {
   root: number

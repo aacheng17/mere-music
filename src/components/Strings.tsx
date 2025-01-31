@@ -1,9 +1,10 @@
 import { motion } from "motion/react"
-import { Freq, stringGap, stringWidth } from "../Models"
+import { distanceBetweenStringCenters, Freq, ScaleType, stringGap } from "../Models"
 import React from "react"
 import { String } from './String'
 import { NoteInfoPanel } from "./NoteInfoPanel"
 import { IStringSettingsModel } from "./StringSettings"
+import { PianoKeys } from "./PianoKeys"
 
 const getStringLogHeight = (freq: Freq) => Math.log(20000 / freq.absoluteFreq) * 100
 
@@ -15,7 +16,6 @@ export const Strings = (props: { freqs: Freq[], settings: IStringSettingsModel }
   const [ stringElements, containerWidth ] = React.useMemo(() => {
     if (!freqs?.length) return []
 
-    const distanceBetweenStringCenters = stringWidth + stringGap
     const containerWidth = distanceBetweenStringCenters * (freqs.length - 1)
 
     const stringData = freqs.map((freq, i) => {
@@ -38,13 +38,9 @@ export const Strings = (props: { freqs: Freq[], settings: IStringSettingsModel }
     if (settings.evenXSpacing) {
       strings = stringData.map(s => <String {...s} x={0} />)
     } else {
-      let largestDiffLogHeight = 0
-      for (let i = 1; i < stringData.length; i++) {
-        const diffLogHeight = Math.abs(stringData[i].logHeight - stringData[i-1].logHeight)
-        if (diffLogHeight > largestDiffLogHeight) largestDiffLogHeight = diffLogHeight
-      }
+      const averageDiffLogHeight = (stringData[stringData.length-1].logHeight - stringData[0].logHeight) / (stringData.length - 1)
       strings = stringData.map((s, i) => {
-        const x = i === 0 ? 0 : (stringData[i].logHeight - stringData[i-1].logHeight) / largestDiffLogHeight * distanceBetweenStringCenters
+        const x = i === 0 ? 0 : (stringData[i].logHeight - stringData[i-1].logHeight - averageDiffLogHeight) / Math.abs(averageDiffLogHeight) * distanceBetweenStringCenters
         return <String {...s} x={x} />
       })
     }
@@ -57,16 +53,18 @@ export const Strings = (props: { freqs: Freq[], settings: IStringSettingsModel }
     flexDirection: 'row',
     gap: `${stringGap}px`,
     width: `${containerWidth}px`,
-    margin: 'auto'
+    margin: 'auto',
   }), [containerWidth])
   
   return <motion.div style={strings}>
     <NoteInfoPanel primaryNote={hoveredStringIndex ? freqs[hoveredStringIndex] : undefined} />
     <motion.div style={stringsContainer}>{stringElements}</motion.div>
+    {settings.scaleType === ScaleType.EQUAL && <PianoKeys freqs={freqs} />}
   </motion.div>
 }
 
 const strings: React.CSSProperties = {
   display: 'flex',
-  flexDirection: 'column'
+  flexDirection: 'column',
+  gap: '16px'
 }

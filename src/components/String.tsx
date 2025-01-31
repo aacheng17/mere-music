@@ -32,10 +32,6 @@ export const String = (props: IStringProps) => {
     return { width: '0px', visibility: isSemiHover ? 'visible' : 'hidden' }
   }, [isSemiHover])
 
-  const pianoKey = React.useMemo(() => {
-
-  },[])
-
   return (<motion.div style={stringContainer} animate={animateContainer}>
     <motion.div style={stringLabel} animate={{ rotate: -90 }}>{roundedFreq}</motion.div>
     <motion.div
