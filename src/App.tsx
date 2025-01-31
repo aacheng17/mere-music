@@ -1,10 +1,9 @@
 import React from 'react'
 import './App.css'
-import { String } from './components/String'
-import { motion } from "motion/react"
 import { IStringSettingsModel, StringSettings } from './components/StringSettings'
 import { Freq, ScaleType } from './Models'
-import { NoteInfoPanel } from './components/NoteInfoPanel'
+import { Strings } from './components/Strings'
+import { motion } from 'motion/react'
 
 const getGcd = (a:number,b:number): number => {
   return b ? getGcd(b, a%b) : a;
@@ -28,17 +27,15 @@ function App() {
     baseNum: 3,
     baseDen: 2,
 
-    logView: false
+    logView: false,
+    evenXSpacing: false
   })
-  const [notes, setNotes] = React.useState<Freq[]>([])
 
   const octaveMult = 2
   const octavesBelow = 4
   const octavesAbove = 3
 
-  const [ hoveredStringIndex, setHoveredStringIndex ] = React.useState<number>()
-
-  const setNotesViaRatios = React.useCallback((ratios: number[]) => {
+  const getFreqsViaRatios = React.useCallback((ratios: number[]) => {
     let octaves = [stringSettings.referenceNote]
     let c = stringSettings.referenceNote
     for (let i=0; i<octavesBelow; i++) {
@@ -59,7 +56,7 @@ function App() {
       }
     }
 
-    setNotes(freqs)
+    return freqs
   },[stringSettings.referenceNote])
 
   const getEqualTemperamentRatios = React.useCallback(() => {
@@ -106,18 +103,18 @@ function App() {
     return ratios
   }, [getEqualTemperamentRatios, stringSettings.highestDenominator, stringSettings.powersOf2Only])
 
-  React.useEffect(() => {
+  const freqs = React.useMemo(() => {
+    let ratios: number[] = []
     switch (stringSettings.scaleType) {
       case ScaleType.EQUAL: {
-        setNotesViaRatios(getEqualTemperamentRatios())
+        ratios = getEqualTemperamentRatios()
         break
       }
       case ScaleType.JUST: {
-        setNotesViaRatios(getJustIntonationRatios())
+        ratios = getJustIntonationRatios()
         break
       }
       case ScaleType.PYTHAGOREAN: {
-        const ratios = []
         const effectiveNotesPerOctave = stringSettings.baseNum === stringSettings.baseDen ? 1 : stringSettings.notesPerOctave
         for (let i=1; i<effectiveNotesPerOctave; i++) {
           let ratio: number = ratios[ratios.length - 1] ?? 1
@@ -127,42 +124,25 @@ function App() {
           ratios.push(ratio)
         }
         ratios.sort()
-        setNotesViaRatios(ratios)
         break
       }
     }
-  }, [getEqualTemperamentRatios, getJustIntonationRatios, setNotesViaRatios, stringSettings.baseDen, stringSettings.baseNum, stringSettings.notesPerOctave, stringSettings.scaleType])
 
-  const stringElements = React.useMemo(() => {
-    return notes.map((n, i) => {
-      return (<String
-        layoutId={`string${i}`}
-        freq={n}
-        isSemiHover={hoveredStringIndex !== undefined && (i % stringSettings.notesPerOctave === hoveredStringIndex % stringSettings.notesPerOctave) || false}
-        logView={stringSettings.logView}
-        onHoverStart={() => setHoveredStringIndex(i)}
-        onHoverEnd={() => setHoveredStringIndex(undefined)}
-      />)
-    })
-  }, [notes, hoveredStringIndex, stringSettings.notesPerOctave, stringSettings.logView])
+    return getFreqsViaRatios(ratios)
+  }, [getEqualTemperamentRatios, getFreqsViaRatios, getJustIntonationRatios, stringSettings.baseDen, stringSettings.baseNum, stringSettings.notesPerOctave, stringSettings.scaleType])
 
   return (
-    <>
+    <motion.div style={app}>
       <StringSettings settings={stringSettings} onChangeSettings={(settings: IStringSettingsModel) => setStringSettings(settings)} />
-      <NoteInfoPanel primaryNote={hoveredStringIndex ? notes[hoveredStringIndex] : undefined} />
-      <motion.div style={stringsContainer}>
-        {stringElements}
-      </motion.div>
-    </>
+      <Strings freqs={freqs} settings={stringSettings} />
+    </motion.div>
   )
 }
 
-const stringsContainer: React.CSSProperties = {
+const app: React.CSSProperties = {
   display: 'flex',
-  flexDirection: 'row',
-  gap: '3px',
-  width: 'min-content',
-  margin: 'auto'
+  flexDirection: 'column',
+  gap: '8px'
 }
 
 export default App

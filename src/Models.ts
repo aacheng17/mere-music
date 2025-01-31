@@ -1,3 +1,6 @@
+export const stringWidth = 8
+export const stringGap = 3
+
 export class Freq {
   root: number
   n?: number
@@ -21,7 +24,7 @@ export class Freq {
 }
 
 export enum ScaleType {
-  EQUAL = "Equal", JUST = "Just", PYTHAGOREAN = "Pythagorean"
+  EQUAL = "Equal temperament", JUST = "Just intonation", PYTHAGOREAN = "Pythagorean"
 }
 
 export const allScaleTypes = [ ScaleType.EQUAL, ScaleType.JUST, ScaleType.PYTHAGOREAN ]

@@ -17,7 +17,8 @@ export interface IStringSettingsModel {
   baseNum: number,
   baseDen: number,
 
-  logView: boolean
+  logView: boolean,
+  evenXSpacing: boolean
 }
 
 export const StringSettings = (props: {
@@ -69,9 +70,10 @@ export const StringSettings = (props: {
     return <motion.div style={tabBody}>
       <motion.div style={settingsRow}>
         <BoolInput label="Log view" value={settings.logView} onChange={(n) => handleChangeSettings({ logView: n})} />
+        <BoolInput label="Even x-axis spacing" value={settings.evenXSpacing} onChange={(n) => handleChangeSettings({ evenXSpacing: n})} />
       </motion.div>
     </motion.div>
-  }, [handleChangeSettings, settings.logView])
+  }, [handleChangeSettings, settings.evenXSpacing, settings.logView])
 
   const tabs = React.useMemo(() => [
     { label: "General", body: generalTab },
@@ -81,7 +83,7 @@ export const StringSettings = (props: {
 
   const [selectedTab, setSelectedTab] = React.useState(0)
 
-  return (<div>
+  return (<div style={panel}>
     <nav style={nav}>
       <ul style={tabsContainer}>
         {tabs.map((item, i) => (

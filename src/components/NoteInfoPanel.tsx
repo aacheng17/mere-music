@@ -6,15 +6,14 @@ import { Info } from "./input/Info"
 export const NoteInfoPanel = (props: { primaryNote?: Freq }) => {
   const { primaryNote } = props
 
-  if (!primaryNote) return null
-
   return <motion.div style={noteInfoPanel}>
-    <Info label="Ratio" value={primaryNote.ratio.toString()} />
+    {primaryNote && <Info label="Ratio" value={primaryNote.ratio.toString()} />}
   </motion.div>
 }
 
 const noteInfoPanel: React.CSSProperties = {
   ...panel,
+  height: '200px',
   display: 'flex',
   flexDirection: 'row',
   justifyContent: 'flex-start'

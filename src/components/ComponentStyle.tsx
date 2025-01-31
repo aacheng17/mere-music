@@ -6,4 +6,5 @@ export const panel: React.CSSProperties = {
   color: "#0f1115",
   fontWeight: 500,
   fontSize: 14,
+  borderRadius: '10px'
 }

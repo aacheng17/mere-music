@@ -1,54 +1,55 @@
 import React from 'react'
 import { motion } from "motion/react"
-import { Freq } from '../Models';
+import { Freq, stringWidth } from '../Models';
 
-export const String = (props: {
+export interface IStringProps {
   layoutId: string,
   freq: Freq,
+  height: number,
+  logHeight: number,
+  x: number,
   logView: boolean,
   isSemiHover: boolean,
   onHoverStart?: ()=>void,
   onHoverEnd?: ()=>void
-}) => {
-  const { layoutId, freq, logView, isSemiHover, onHoverStart, onHoverEnd } = props
+}
 
-  const height: number = React.useMemo(() => {
-    const wavelength = logView ?
-      Math.log(20000 / freq.absoluteFreq) :
-      343/ freq.absoluteFreq
-    return wavelength * 100
-  }, [freq.absoluteFreq, logView])
+export const String = (props: IStringProps) => {
+  const { layoutId, freq, height, logHeight, x, logView, isSemiHover, onHoverStart, onHoverEnd } = props
 
-  const hoverScaleY = React.useMemo(() => 15 / height + 1, [height])
+  const displayHeight = React.useMemo(() => logView ? logHeight: height, [height, logHeight, logView])
   const backgroundColor = React.useMemo(() => `hsl(${(360 * (2 - freq.ratio)) / 4 + 200}, 70%, 65%)`, [freq])
   const roundedFreq = React.useMemo(() => (Math.round(freq.absoluteFreq * 100) / 100).toFixed(2), [freq.absoluteFreq])
 
+  const animateContainer = React.useMemo(() => ({ x }), [x])
+
   const animate = React.useMemo(() => {
-    if (isSemiHover) return { scaleY: hoverScaleY, scaleX: 1.2 }
-    return { scaleY: 1, scaleX: 1 }
-  }, [hoverScaleY, isSemiHover])
+    if (isSemiHover) return { y: 8 }
+    return { y: 0 }
+  }, [isSemiHover])
 
   const stringLabel: React.CSSProperties = React.useMemo(() => {
     return { width: '0px', visibility: isSemiHover ? 'visible' : 'hidden' }
   }, [isSemiHover])
 
-  return (
-    <motion.div style={stringContainer}>
+  const pianoKey = React.useMemo(() => {
+
+  },[])
+
+  return (<motion.div style={stringContainer} animate={animateContainer}>
     <motion.div style={stringLabel} animate={{ rotate: -90 }}>{roundedFreq}</motion.div>
     <motion.div
       layoutId={layoutId}
       style={{
-        width: 8,
+        width: stringWidth,
         backgroundColor: backgroundColor,
         borderRadius: 5,
       }}
       animate={{
         ...animate,
-        height: height,
+        height: displayHeight,
         transition: {
-          height: { duration: 0.3, type: "ease" },
-          scaleY: { duration: 0.04, type: "ease" },
-          scaleX: { duration: 0.04, type: "ease" }
+          y: { duration: 0.1 }
         }
       }}
       onHoverStart={onHoverStart}
