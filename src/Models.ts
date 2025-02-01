@@ -4,15 +4,17 @@ export const distanceBetweenStringCenters = stringWidth + stringGap
 
 export class Freq {
   root: number
-  i: number
+  octaveIndex: number
+  index: number
   n?: number
   d?: number
   ratio: number
   absoluteFreq: number
   
-  constructor(root: number, i: number, a: number, b?: number) {
+  constructor(root: number, octaveIndex: number, index: number, a: number, b?: number) {
     this.root = root
-    this.i = i
+    this.octaveIndex = octaveIndex
+    this.index = index
     
     if (b === undefined) {
       this.ratio = a
@@ -26,8 +28,14 @@ export class Freq {
   }
 }
 
+export enum Octaves {
+  ONE = "One", TWO = "Two", PIANO = "Piano (3 above, 4 below reference)"
+}
+
+export const allOctaves = Object.values(Octaves).filter(item => isNaN(Number(item))).map(item => item as Octaves)
+
 export enum ScaleType {
   EQUAL = "Equal temperament", JUST = "Just intonation", PYTHAGOREAN = "Pythagorean"
 }
 
-export const allScaleTypes = [ ScaleType.EQUAL, ScaleType.JUST, ScaleType.PYTHAGOREAN ]
+export const allScaleTypes = Object.values(ScaleType).filter(item => isNaN(Number(item))).map(item => item as ScaleType)

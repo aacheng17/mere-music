@@ -1,6 +1,6 @@
 import React from "react";
 import { AnimatePresence, motion } from "motion/react"
-import { ScaleType } from "../Models";
+import { allOctaves, allScaleTypes, Octaves, ScaleType } from "../Models";
 import { IntInput } from "./input/IntInput";
 import { BoolInput } from "./input/BoolInput";
 import { RatioInput } from "./input/RatioInput";
@@ -9,7 +9,10 @@ import { panel } from "./ComponentStyle";
 
 export interface IStringSettingsModel {
   referenceNote: number,
+  octaves: Octaves,
   notesPerOctave: number,
+  octaveNum: number,
+  octaveDen: number,
 
   scaleType: ScaleType,
   powersOf2Only: boolean,
@@ -39,15 +42,17 @@ export const StringSettings = (props: {
     return <motion.div style={tabBody}>
       <motion.div style={settingsRow}>
         <IntInput label="Reference frequency" value={settings.referenceNote} onChange={(n) => handleChangeSettings({ referenceNote: n })} min={100} max={1000} />
+        <SelectInput label="Octaves" options={allOctaves} value={settings.octaves} onChange={(n) => handleChangeSettings({ octaves: n })} />
         <IntInput label="Notes per octave" value={settings.notesPerOctave} onChange={(n) => handleChangeSettings({ notesPerOctave: n })} min={1} max={20} />
-        </motion.div>
+        <RatioInput label="Octave ratio" a={settings.octaveNum} b={settings.octaveDen} onChange={(a, b) => handleChangeSettings({ octaveNum: a, octaveDen: b })} />
+      </motion.div>
     </motion.div>
-  }, [handleChangeSettings, settings.notesPerOctave, settings.referenceNote])
+  }, [handleChangeSettings, settings.notesPerOctave, settings.octaveDen, settings.octaveNum, settings.octaves, settings.referenceNote])
 
   // SCALE
   const scaleTab = React.useMemo(() => {
     return <motion.div style={tabBody}>
-      <SelectInput label="Scale type" value={settings.scaleType} onChange={(n) => handleChangeSettings({ scaleType: n})} />
+      <SelectInput label="Scale type" options={allScaleTypes} value={settings.scaleType} onChange={(n) => handleChangeSettings({ scaleType: n})} />
       <motion.div style={settingsRow}>
         {
           settings.scaleType === ScaleType.JUST && (<>

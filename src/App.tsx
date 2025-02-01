@@ -1,7 +1,7 @@
 import React from 'react'
 import './App.css'
 import { IStringSettingsModel, StringSettings } from './components/StringSettings'
-import { Freq, ScaleType } from './Models'
+import { Freq, Octaves, ScaleType } from './Models'
 import { Strings } from './components/Strings'
 import { motion } from 'motion/react'
 
@@ -19,7 +19,10 @@ const fromId = (x:string) => x.split(',').map(s => parseInt(s, 10))
 function App() {
   const [ stringSettings, setStringSettings ] = React.useState<IStringSettingsModel>({
     referenceNote: 440,
+    octaves: Octaves.ONE,
     notesPerOctave: 12,
+    octaveNum: 2,
+    octaveDen: 1,
 
     scaleType: ScaleType.EQUAL,
     powersOf2Only: true,
@@ -31,9 +34,17 @@ function App() {
     evenXSpacing: false
   })
 
-  const octaveMult = 2
-  const octavesBelow = 4
-  const octavesAbove = 3
+  const octaveMult = React.useMemo(() => stringSettings.octaveNum / stringSettings.octaveDen, [stringSettings.octaveDen, stringSettings.octaveNum])
+  const [ octavesBelow, octavesAbove ] = React.useMemo(() => {
+    switch (stringSettings.octaves) {
+      case Octaves.ONE:
+        return [0, 1]
+      case Octaves.TWO:
+        return [1, 1]
+      case Octaves.PIANO:
+        return [4, 3]
+    }
+  }, [stringSettings.octaves])
 
   const getFreqsViaRatios = React.useCallback((ratios: number[]) => {
     let octaves = [stringSettings.referenceNote]
@@ -48,18 +59,18 @@ function App() {
       octaves.push(c)
     }
 
-    const freqs = []
-    for (const octave of octaves) {
-      freqs.push(new Freq(octave, 0, 1))
+    const freqs: Freq[] = []
+    octaves.forEach((octave, octaveI) => {
+      freqs.push(new Freq(octave, octaveI, 0, 1))
       let i = 1
       for (const ratio of ratios) {
-        freqs.push(new Freq(octave, i, ratio))
+        freqs.push(new Freq(octave, octaveI, i, ratio))
         i++
       }
-    }
+    })
 
     return freqs
-  },[stringSettings.referenceNote])
+  }, [octaveMult, octavesAbove, octavesBelow, stringSettings.referenceNote])
 
   const getEqualTemperamentRatios = React.useCallback(() => {
     const k = Math.pow(octaveMult, 1/stringSettings.notesPerOctave)
@@ -70,7 +81,7 @@ function App() {
       ratios.push(ratio)
     }
     return ratios
-  },[stringSettings.notesPerOctave])
+  }, [octaveMult, stringSettings.notesPerOctave])
 
   const getJustIntonationRatios = React.useCallback(() => {
     const possibleRatios = new Set<string>()
@@ -131,7 +142,7 @@ function App() {
     }
 
     return getFreqsViaRatios(ratios)
-  }, [getEqualTemperamentRatios, getFreqsViaRatios, getJustIntonationRatios, stringSettings.baseDen, stringSettings.baseNum, stringSettings.notesPerOctave, stringSettings.scaleType])
+  }, [getEqualTemperamentRatios, getFreqsViaRatios, getJustIntonationRatios, octaveMult, stringSettings.baseDen, stringSettings.baseNum, stringSettings.notesPerOctave, stringSettings.scaleType])
 
   return (
     <motion.div style={app}>

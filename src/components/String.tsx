@@ -1,5 +1,5 @@
 import React from 'react'
-import { motion } from "motion/react"
+import { AnimatePresence, motion } from "motion/react"
 import { Freq, ScaleType, stringWidth } from '../Models';
 import { IStringSettingsModel } from './StringSettings';
 
@@ -19,9 +19,17 @@ export interface IStringProps {
 export const String = (props: IStringProps) => {
   const { layoutId, freq, height, logHeight, x, logView, isSemiHover, onHoverStart, onHoverEnd, settings } = props
 
+  const isBlackKey = React.useMemo(() => [1, 4, 6, 9, 11].includes(freq.index), [freq])
   const displayHeight = React.useMemo(() => logView ? logHeight: height, [height, logHeight, logView])
-  const backgroundColor = React.useMemo(() => `hsl(${(360 * (2 - freq.ratio)) / 4 + 200}, 70%, 65%)`, [freq])
   const roundedFreq = React.useMemo(() => (Math.round(freq.absoluteFreq * 100) / 100).toFixed(2), [freq.absoluteFreq])
+
+  const backgroundColor = React.useMemo(() => {
+    const octaveMult = settings.octaveNum / settings.octaveDen
+    const lowestHue = 200
+    const hueRange = 180
+    const hue = lowestHue + (octaveMult - freq.ratio) / octaveMult * hueRange
+    return `hsl(${hue}, 70%, 65%)`
+  }, [freq.ratio, settings.octaveDen, settings.octaveNum])
 
   const animateContainer = React.useMemo(() => ({ x }), [x])
 
@@ -35,7 +43,18 @@ export const String = (props: IStringProps) => {
   }, [isSemiHover])
 
   const stringLabel: React.CSSProperties = React.useMemo(() => ({ width: '0px', visibility: isSemiHover ? 'visible' : 'hidden' }), [isSemiHover])
-  const pianoKey: React.CSSProperties = React.useMemo(() => ({ backgroundColor: [1, 3, 6, 8, 10].includes(freq.i) ? 'black' : '#fbf7f5' }), [freq.i])
+  const pianoKeyNoteString = React.useMemo(() => {
+    switch (freq.index) {
+      case 0: return 'A'
+      case 2: return 'B';
+      case 3: return 'C';
+      case 5: return 'D';
+      case 7: return 'E';
+      case 8: return 'F';
+      case 10: return 'G';
+    }
+  }, [freq.index])
+  const pianoKey: React.CSSProperties = React.useMemo(() => ({ backgroundColor: isBlackKey ? 'black' : '#fbf7f5' }), [isBlackKey])
 
   return (<motion.div onHoverStart={onHoverStart} onHoverEnd={onHoverEnd}>
     <motion.div style={stringContainer} animate={animateContainer}>
@@ -52,7 +71,17 @@ export const String = (props: IStringProps) => {
           height: displayHeight
         }}
       />
-      {settings.scaleType === ScaleType.EQUAL && <motion.div style={pianoKey} animate={{ ...animate, height: '48px', width: stringWidth }}/>}
+      <AnimatePresence>
+        {settings.scaleType === ScaleType.EQUAL && <motion.div style={pianoKeyContainer}>
+          <motion.div
+            style={pianoKey}
+            animate={{ ...animate, height: '48px', width: stringWidth }}
+            exit={{ opacity: 0, scale: 0 }}
+          />
+          <motion.div style={pianoKeyLabel}>{pianoKeyNoteString}</motion.div>
+          <motion.div style={pianoKeyLabel}>{pianoKeyNoteString && freq.octaveIndex}</motion.div>
+        </motion.div>}
+      </AnimatePresence>
     </motion.div>
   </motion.div>)
 }
@@ -62,3 +91,11 @@ const stringContainer: React.CSSProperties = {
   flexDirection: 'column',
   alignItems: 'center'
 }
+
+const pianoKeyContainer: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center'
+}
+
+const pianoKeyLabel: React.CSSProperties = { maxWidth: stringWidth, height: '14px', fontSize: '14px', lineHeight: '14px' }
