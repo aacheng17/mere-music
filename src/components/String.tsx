@@ -1,6 +1,7 @@
 import React from 'react'
 import { motion } from "motion/react"
-import { Freq, stringWidth } from '../Models';
+import { Freq, ScaleType, stringWidth } from '../Models';
+import { IStringSettingsModel } from './StringSettings';
 
 export interface IStringProps {
   layoutId: string,
@@ -11,11 +12,12 @@ export interface IStringProps {
   logView: boolean,
   isSemiHover: boolean,
   onHoverStart?: ()=>void,
-  onHoverEnd?: ()=>void
+  onHoverEnd?: ()=>void,
+  settings: IStringSettingsModel
 }
 
 export const String = (props: IStringProps) => {
-  const { layoutId, freq, height, logHeight, x, logView, isSemiHover, onHoverStart, onHoverEnd } = props
+  const { layoutId, freq, height, logHeight, x, logView, isSemiHover, onHoverStart, onHoverEnd, settings } = props
 
   const displayHeight = React.useMemo(() => logView ? logHeight: height, [height, logHeight, logView])
   const backgroundColor = React.useMemo(() => `hsl(${(360 * (2 - freq.ratio)) / 4 + 200}, 70%, 65%)`, [freq])
@@ -24,13 +26,16 @@ export const String = (props: IStringProps) => {
   const animateContainer = React.useMemo(() => ({ x }), [x])
 
   const animate = React.useMemo(() => {
-    if (isSemiHover) return { y: 8 }
-    return { y: 0 }
+    return {
+      y: isSemiHover ? -8 : 0,
+      transition: {
+        y: { duration: 0.1 }
+      }
+    }
   }, [isSemiHover])
 
-  const stringLabel: React.CSSProperties = React.useMemo(() => {
-    return { width: '0px', visibility: isSemiHover ? 'visible' : 'hidden' }
-  }, [isSemiHover])
+  const stringLabel: React.CSSProperties = React.useMemo(() => ({ width: '0px', visibility: isSemiHover ? 'visible' : 'hidden' }), [isSemiHover])
+  const pianoKey: React.CSSProperties = React.useMemo(() => ({ backgroundColor: [1, 3, 6, 8, 10].includes(freq.i) ? 'black' : '#fbf7f5' }), [freq.i])
 
   return (<motion.div style={stringContainer} animate={animateContainer}>
     <motion.div style={stringLabel} animate={{ rotate: -90 }}>{roundedFreq}</motion.div>
@@ -43,14 +48,12 @@ export const String = (props: IStringProps) => {
       }}
       animate={{
         ...animate,
-        height: displayHeight,
-        transition: {
-          y: { duration: 0.1 }
-        }
+        height: displayHeight
       }}
       onHoverStart={onHoverStart}
       onHoverEnd={onHoverEnd}
     />
+    {settings.scaleType === ScaleType.EQUAL && <motion.div style={pianoKey} animate={{ ...animate, height: '48px', width: stringWidth }}/>}
   </motion.div>)
 }
 

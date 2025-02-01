@@ -4,13 +4,15 @@ export const distanceBetweenStringCenters = stringWidth + stringGap
 
 export class Freq {
   root: number
+  i: number
   n?: number
   d?: number
   ratio: number
   absoluteFreq: number
   
-  constructor(root: number, a: number, b?: number) {
+  constructor(root: number, i: number, a: number, b?: number) {
     this.root = root
+    this.i = i
     
     if (b === undefined) {
       this.ratio = a

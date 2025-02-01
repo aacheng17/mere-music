@@ -50,9 +50,11 @@ function App() {
 
     const freqs = []
     for (const octave of octaves) {
-      freqs.push(new Freq(octave, 1))
+      freqs.push(new Freq(octave, 0, 1))
+      let i = 1
       for (const ratio of ratios) {
-        freqs.push(new Freq(octave, ratio))
+        freqs.push(new Freq(octave, i, ratio))
+        i++
       }
     }
 

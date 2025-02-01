@@ -1,10 +1,9 @@
 import { motion } from "motion/react"
-import { distanceBetweenStringCenters, Freq, ScaleType, stringGap } from "../Models"
+import { distanceBetweenStringCenters, Freq, stringGap } from "../Models"
 import React from "react"
 import { String } from './String'
 import { NoteInfoPanel } from "./NoteInfoPanel"
 import { IStringSettingsModel } from "./StringSettings"
-import { PianoKeys } from "./PianoKeys"
 
 const getStringLogHeight = (freq: Freq) => Math.log(20000 / freq.absoluteFreq) * 100
 
@@ -29,7 +28,8 @@ export const Strings = (props: { freqs: Freq[], settings: IStringSettingsModel }
         logView: settings.logView,
         isSemiHover: hoveredStringIndex !== undefined && (i % settings.notesPerOctave === hoveredStringIndex % settings.notesPerOctave) || false,
         onHoverStart: () => setHoveredStringIndex(i),
-        onHoverEnd: () => setHoveredStringIndex(undefined)
+        onHoverEnd: () => setHoveredStringIndex(undefined),
+        settings: settings
       }
     })
 
@@ -46,11 +46,12 @@ export const Strings = (props: { freqs: Freq[], settings: IStringSettingsModel }
     }
     
     return [ strings, containerWidth ]
-  }, [freqs, hoveredStringIndex, settings.evenXSpacing, settings.logView, settings.notesPerOctave])
+  }, [freqs, hoveredStringIndex, settings])
 
   const stringsContainer: React.CSSProperties = React.useMemo(() => ({
     display: 'flex',
     flexDirection: 'row',
+    alignItems: 'flex-end',
     gap: `${stringGap}px`,
     width: `${containerWidth}px`,
     margin: 'auto',
@@ -59,7 +60,6 @@ export const Strings = (props: { freqs: Freq[], settings: IStringSettingsModel }
   return <motion.div style={strings}>
     <NoteInfoPanel primaryNote={hoveredStringIndex ? freqs[hoveredStringIndex] : undefined} />
     <motion.div style={stringsContainer}>{stringElements}</motion.div>
-    {settings.scaleType === ScaleType.EQUAL && <PianoKeys freqs={freqs} />}
   </motion.div>
 }
 
