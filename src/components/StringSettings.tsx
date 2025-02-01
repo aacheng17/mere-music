@@ -52,7 +52,7 @@ export const StringSettings = (props: {
         {
           settings.scaleType === ScaleType.JUST && (<>
             <BoolInput label="Power of 2 only" value={settings.powersOf2Only} onChange={(n) => handleChangeSettings({ powersOf2Only: n})} />
-            <IntInput label="Highest denominator" value={settings.highestDenominator} onChange={(n) => handleChangeSettings({ highestDenominator: n })} min={8} max={32} />
+            <IntInput label="Highest denominator" value={settings.highestDenominator} onChange={(n) => handleChangeSettings({ highestDenominator: n })} min={8} max={64} />
           </>)
         }
         {

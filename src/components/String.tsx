@@ -37,23 +37,23 @@ export const String = (props: IStringProps) => {
   const stringLabel: React.CSSProperties = React.useMemo(() => ({ width: '0px', visibility: isSemiHover ? 'visible' : 'hidden' }), [isSemiHover])
   const pianoKey: React.CSSProperties = React.useMemo(() => ({ backgroundColor: [1, 3, 6, 8, 10].includes(freq.i) ? 'black' : '#fbf7f5' }), [freq.i])
 
-  return (<motion.div style={stringContainer} animate={animateContainer}>
-    <motion.div style={stringLabel} animate={{ rotate: -90 }}>{roundedFreq}</motion.div>
-    <motion.div
-      layoutId={layoutId}
-      style={{
-        width: stringWidth,
-        backgroundColor: backgroundColor,
-        borderRadius: 5,
-      }}
-      animate={{
-        ...animate,
-        height: displayHeight
-      }}
-      onHoverStart={onHoverStart}
-      onHoverEnd={onHoverEnd}
-    />
-    {settings.scaleType === ScaleType.EQUAL && <motion.div style={pianoKey} animate={{ ...animate, height: '48px', width: stringWidth }}/>}
+  return (<motion.div onHoverStart={onHoverStart} onHoverEnd={onHoverEnd}>
+    <motion.div style={stringContainer} animate={animateContainer}>
+      <motion.div style={stringLabel} animate={{ rotate: -90 }}>{roundedFreq}</motion.div>
+      <motion.div
+        layoutId={layoutId}
+        style={{
+          width: stringWidth,
+          backgroundColor: backgroundColor,
+          borderRadius: 5,
+        }}
+        animate={{
+          ...animate,
+          height: displayHeight
+        }}
+      />
+      {settings.scaleType === ScaleType.EQUAL && <motion.div style={pianoKey} animate={{ ...animate, height: '48px', width: stringWidth }}/>}
+    </motion.div>
   </motion.div>)
 }
 
