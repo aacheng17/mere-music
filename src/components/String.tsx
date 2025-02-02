@@ -79,7 +79,6 @@ export const String = (props: IStringProps) => {
             exit={{ opacity: 0, scale: 0 }}
           />
           <motion.div style={pianoKeyLabel}>{pianoKeyNoteString}</motion.div>
-          <motion.div style={pianoKeyLabel}>{pianoKeyNoteString && freq.octaveIndex}</motion.div>
         </motion.div>}
       </AnimatePresence>
     </motion.div>

@@ -38,11 +38,11 @@ function App() {
   const [ octavesBelow, octavesAbove ] = React.useMemo(() => {
     switch (stringSettings.octaves) {
       case Octaves.ONE:
-        return [0, 1]
+        return [0, 0]
       case Octaves.TWO:
-        return [1, 1]
+        return [1, 0]
       case Octaves.PIANO:
-        return [4, 3]
+        return [4, 2]
     }
   }, [stringSettings.octaves])
 
