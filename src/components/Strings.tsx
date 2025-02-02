@@ -1,25 +1,25 @@
 import { motion } from "motion/react"
-import { distanceBetweenStringCenters, Freq, stringGap } from "../Models"
+import { distanceBetweenStringCenters, getAbsoluteFreq, IVisualFreq, stringGap } from "../Models"
 import React from "react"
 import { String } from './String'
-import { NoteInfoPanel } from "./NoteInfoPanel"
 import { IStringSettingsModel } from "./StringSettings"
 
-const getStringLogHeight = (freq: Freq) => Math.log(20000 / freq.absoluteFreq) * 100
+const getStringLogHeight = (absoluteFreq: number) => Math.log(20000 / absoluteFreq) * 100
 
-export const Strings = (props: { freqs: Freq[], settings: IStringSettingsModel }) => {
+export const Strings = (props: { freqs: IVisualFreq[], settings: IStringSettingsModel }) => {
   const { freqs, settings } = props
 
   const [ hoveredStringIndex, setHoveredStringIndex ] = React.useState<number>()
 
   const [ stringElements, containerWidth ] = React.useMemo(() => {
-    if (!freqs?.length) return []
+    if (!freqs.length) return []
 
     const containerWidth = distanceBetweenStringCenters * (freqs.length - 1)
 
     const stringData = freqs.map((freq, i) => {
-      const height = 34300 / freq.absoluteFreq
-      const logHeight = getStringLogHeight(freq)
+      const absoluteFreq = getAbsoluteFreq(freq)
+      const height = 34300 / absoluteFreq
+      const logHeight = getStringLogHeight(absoluteFreq)
       return {
         freq,
         height,
@@ -58,7 +58,6 @@ export const Strings = (props: { freqs: Freq[], settings: IStringSettingsModel }
   }), [containerWidth])
   
   return <motion.div style={strings}>
-    <NoteInfoPanel primaryNote={hoveredStringIndex ? freqs[hoveredStringIndex] : undefined} />
     <motion.div style={stringsContainer}>{stringElements}</motion.div>
   </motion.div>
 }

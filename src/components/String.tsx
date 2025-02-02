@@ -1,11 +1,11 @@
 import React from 'react'
 import { AnimatePresence, motion } from "motion/react"
-import { Freq, ScaleType, stringWidth } from '../Models';
+import { getAbsoluteFreq, IVisualFreq, ScaleType, stringWidth } from '../Models';
 import { IStringSettingsModel } from './StringSettings';
 
 export interface IStringProps {
   layoutId: string,
-  freq: Freq,
+  freq: IVisualFreq,
   height: number,
   logHeight: number,
   x: number,
@@ -21,7 +21,7 @@ export const String = (props: IStringProps) => {
 
   const isBlackKey = React.useMemo(() => [1, 4, 6, 9, 11].includes(freq.index), [freq])
   const displayHeight = React.useMemo(() => logView ? logHeight: height, [height, logHeight, logView])
-  const roundedFreq = React.useMemo(() => (Math.round(freq.absoluteFreq * 100) / 100).toFixed(2), [freq.absoluteFreq])
+  const roundedFreq = React.useMemo(() => (Math.round(getAbsoluteFreq(freq) * 100) / 100).toFixed(2), [freq])
 
   const backgroundColor = React.useMemo(() => {
     const octaveMult = settings.octaveNum / settings.octaveDen
@@ -31,7 +31,7 @@ export const String = (props: IStringProps) => {
     return `hsl(${hue}, 70%, 65%)`
   }, [freq.ratio, settings.octaveDen, settings.octaveNum])
 
-  const animateContainer = React.useMemo(() => ({ x }), [x])
+  const animateContainer = React.useMemo(() => ({ x, opacity: freq.visible ? 1 : 0, y : freq.visible ? 0 : -16 }), [freq.visible, x])
 
   const animate = React.useMemo(() => {
     return {

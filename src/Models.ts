@@ -2,31 +2,26 @@ export const stringWidth = 8
 export const stringGap = 3
 export const distanceBetweenStringCenters = stringWidth + stringGap
 
-export class Freq {
-  root: number
-  octaveIndex: number
-  index: number
+export interface IRatio {
   n?: number
   d?: number
   ratio: number
-  absoluteFreq: number
-  
-  constructor(root: number, octaveIndex: number, index: number, a: number, b?: number) {
-    this.root = root
-    this.octaveIndex = octaveIndex
-    this.index = index
-    
-    if (b === undefined) {
-      this.ratio = a
-    } else {
-      this.n = a
-      this.d = b
-      this.ratio = this.n / this.d
-    }
-
-    this.absoluteFreq = this.root * this.ratio
-  }
 }
+
+export interface IScaleRatio extends IRatio {
+  index: number
+}
+
+export interface IConcreteFreq extends IScaleRatio {
+  root: number
+  octaveIndex: number
+}
+
+export interface IVisualFreq extends IConcreteFreq {
+  visible: boolean
+}
+
+export const getAbsoluteFreq = (freq: IVisualFreq) => freq.root * freq.ratio
 
 export enum Octaves {
   ONE = "One", TWO = "Two", PIANO = "Piano (3 above, 4 below reference)"
