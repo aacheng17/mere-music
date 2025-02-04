@@ -1,4 +1,4 @@
-import { IConcreteFreq, IScaleRatio, Octaves } from "../../Models"
+import { Freq, Octaves, Ratio } from "../../Models"
 import { IStringSettingsModel } from "../StringSettings"
 
 const getOctaveRange = (settings: IStringSettingsModel) => {
@@ -18,7 +18,7 @@ export const getOctaveInfo = (settings: IStringSettingsModel) => {
   return [ octaveMult, octavesBelow, octavesAbove]
 }
 
-export const getAllFreqs = (ratios: IScaleRatio[], referenceNote: number, octaveMult: number, octavesAbove: number, octavesBelow: number) => {
+export const getAllFreqs = (ratios: Ratio[], referenceNote: number, octaveMult: number, octavesAbove: number, octavesBelow: number) => {
   let octaveRoots = [referenceNote]
   for (let i=0; i<octavesBelow; i++) {
     octaveRoots = [ octaveRoots[0] / octaveMult, ...octaveRoots]
@@ -27,21 +27,18 @@ export const getAllFreqs = (ratios: IScaleRatio[], referenceNote: number, octave
     octaveRoots.push(octaveRoots[octaveRoots.length - 1] * octaveMult)
   }
 
-  let freqs: IConcreteFreq[] = []
+  let freqs: Freq[] = []
   octaveRoots.forEach((root, octaveIndex) => {
-    freqs = [ ...freqs, ...ratios.map((ratio) => ({ root, octaveIndex, index: ratio.index, ratio: ratio.ratio })) ]
+    freqs = [ ...freqs, ...ratios.map((ratio, i) => new Freq(ratio, root, octaveIndex, i, false)) ]
   })
 
   return freqs
 }
 
 export const getEqualTemperamentRatios = (octaveMult: number, notesPerOctave: number) => {
-  const k = Math.pow(octaveMult, 1/notesPerOctave)
-  const ratios: IScaleRatio[] = []
-  let ratio = 1
+  const ratios: Ratio[] = []
   for (let i=0; i<notesPerOctave; i++) {
-    ratios.push({ ratio, index: i })
-    ratio *= k
+    ratios.push(new Ratio(octaveMult, 1, notesPerOctave, i))
   }
   return ratios
 }

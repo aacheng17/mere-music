@@ -1,7 +1,7 @@
 import { delay, motion } from "motion/react";
 import { IStringSettingsModel } from "../StringSettings";
 import React from "react";
-import { IScaleRatio, IVisualFreq } from "../../Models";
+import { Freq, Ratio } from "../../Models";
 import { Strings } from "../Strings";
 import { getAllFreqs, getEqualTemperamentRatios, getOctaveInfo } from "./construction";
 
@@ -19,14 +19,14 @@ const fromId = (x:string) => x.split(',').map(s => parseInt(s, 10))
 export const JustConstruction = ( props: { settings: IStringSettingsModel} ) => {
   const { settings } = props
 
-  const [ ratioVisuals, setRatioVisuals ] = React.useState<IVisualFreq[]>([])
-  const [ freqVisuals, setFreqVisuals ] = React.useState<IVisualFreq[]>([])
+  const [ ratioVisuals, setRatioVisuals ] = React.useState<Freq[]>([])
+  const [ freqVisuals, setFreqVisuals ] = React.useState<Freq[]>([])
 
   const [ octaveMult, octavesBelow, octavesAbove ] = React.useMemo(() => getOctaveInfo(settings), [settings])
 
   const ratios = React.useMemo(() => {
     const possibleRatios = new Set<string>()
-    const ratios: IScaleRatio[] = []
+    const ratios: Ratio[] = []
     let n = 1, d = 1;
     while (d <= settings.highestDenominator) {
       const r = getId(reduceFraction(n, d))
@@ -42,17 +42,17 @@ export const JustConstruction = ( props: { settings: IStringSettingsModel} ) => 
     }
 
     const etRatios = getEqualTemperamentRatios(octaveMult, settings.notesPerOctave)
-    etRatios.forEach((etRatio, i) => {
+    etRatios.forEach((etRatio) => {
       let lowestDiff = 1
       let lowestId: string = ''
       for (const x of possibleRatios) {
-        const diff = Math.abs(fromId(x)[0] / fromId(x)[1] - etRatio.ratio)
+        const diff = Math.abs(fromId(x)[0] / fromId(x)[1] - etRatio.getValue())
         if (diff < lowestDiff) {
           lowestDiff = diff
           lowestId = x
         }
       }
-      ratios.push({ ratio: fromId(lowestId)[0] / fromId(lowestId)[1], index: i + 1 })
+      ratios.push(new Ratio(fromId(lowestId)[0], fromId(lowestId)[1]))
     })
 
     return ratios
@@ -65,12 +65,7 @@ export const JustConstruction = ( props: { settings: IStringSettingsModel} ) => 
   React.useEffect(() => {
     let t = 250
 
-    setRatioVisuals(ratios.map(ratio => ({
-      ...ratio,
-      root: 440,
-      octaveIndex: 0,
-      visible: false
-    })))
+    setRatioVisuals(ratios.map((ratio, i) => new Freq(ratio, 440, 0, i, false)))
     for (let i = 0; i < ratios.length; i++) {
       t += 500 / ratios.length
       delay(() => setRatioVisuals(ratioVisuals => {
@@ -82,10 +77,7 @@ export const JustConstruction = ( props: { settings: IStringSettingsModel} ) => 
 
     t += 250
 
-    setFreqVisuals(freqs.map(freq => ({
-      ...freq,
-      visible: false
-    })))
+    setFreqVisuals(freqs)
     for (let i = 0; i < freqs.length; i++) {
       t += 500 / freqs.length
       delay(() => setFreqVisuals(freqVisuals => {

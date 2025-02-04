@@ -1,15 +1,15 @@
 import { delay, motion } from "motion/react";
 import { IStringSettingsModel } from "../StringSettings";
 import React from "react";
-import { IVisualFreq } from "../../Models";
 import { Strings } from "../Strings";
 import { getAllFreqs, getEqualTemperamentRatios, getOctaveInfo } from "./construction";
+import { Freq } from "../../Models";
 
 export const EqualConstruction = ( props: { settings: IStringSettingsModel} ) => {
   const { settings } = props
 
-  const [ ratioVisuals, setRatioVisuals ] = React.useState<IVisualFreq[]>([])
-  const [ freqVisuals, setFreqVisuals ] = React.useState<IVisualFreq[]>([])
+  const [ ratioVisuals, setRatioVisuals ] = React.useState<Freq[]>([])
+  const [ freqVisuals, setFreqVisuals ] = React.useState<Freq[]>([])
 
   const [ octaveMult, octavesBelow, octavesAbove ] = React.useMemo(() => getOctaveInfo(settings), [settings])
 
@@ -22,12 +22,7 @@ export const EqualConstruction = ( props: { settings: IStringSettingsModel} ) =>
   React.useEffect(() => {
     let t = 250
 
-    setRatioVisuals(ratios.map(ratio => ({
-      ...ratio,
-      root: 440,
-      octaveIndex: 0,
-      visible: false
-    })))
+    setRatioVisuals(ratios.map((ratio, i) => new Freq(ratio, 440, 0, i, false)))
     for (let i = 0; i < ratios.length; i++) {
       t += 500 / ratios.length
       delay(() => setRatioVisuals(ratioVisuals => {
@@ -39,10 +34,7 @@ export const EqualConstruction = ( props: { settings: IStringSettingsModel} ) =>
 
     t += 250
 
-    setFreqVisuals(freqs.map(freq => ({
-      ...freq,
-      visible: false
-    })))
+    setFreqVisuals(freqs)
     for (let i = 0; i < freqs.length; i++) {
       t += 500 / freqs.length
       delay(() => setFreqVisuals(freqVisuals => {

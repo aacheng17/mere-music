@@ -1,12 +1,12 @@
 import { motion } from "motion/react"
-import { distanceBetweenStringCenters, getAbsoluteFreq, IVisualFreq, stringGap } from "../Models"
+import { distanceBetweenStringCenters, Freq, stringGap } from "../Models"
 import React from "react"
 import { String } from './String'
 import { IStringSettingsModel } from "./StringSettings"
 
 const getStringLogHeight = (absoluteFreq: number) => Math.log(20000 / absoluteFreq) * 100
 
-export const Strings = (props: { freqs: IVisualFreq[], settings: IStringSettingsModel }) => {
+export const Strings = (props: { freqs: Freq[], settings: IStringSettingsModel }) => {
   const { freqs, settings } = props
 
   const [ hoveredStringIndex, setHoveredStringIndex ] = React.useState<number>()
@@ -17,7 +17,7 @@ export const Strings = (props: { freqs: IVisualFreq[], settings: IStringSettings
     const containerWidth = distanceBetweenStringCenters * (freqs.length - 1)
 
     const stringData = freqs.map((freq, i) => {
-      const absoluteFreq = getAbsoluteFreq(freq)
+      const absoluteFreq = freq.getHertz()
       const height = 34300 / absoluteFreq
       const logHeight = getStringLogHeight(absoluteFreq)
       return {

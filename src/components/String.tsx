@@ -1,11 +1,11 @@
 import React from 'react'
 import { AnimatePresence, motion } from "motion/react"
-import { getAbsoluteFreq, IVisualFreq, ScaleType, stringWidth } from '../Models';
+import { Freq, ScaleType, stringWidth } from '../Models';
 import { IStringSettingsModel } from './StringSettings';
 
 export interface IStringProps {
   layoutId: string,
-  freq: IVisualFreq,
+  freq: Freq,
   height: number,
   logHeight: number,
   x: number,
@@ -19,17 +19,17 @@ export interface IStringProps {
 export const String = (props: IStringProps) => {
   const { layoutId, freq, height, logHeight, x, logView, isSemiHover, onHoverStart, onHoverEnd, settings } = props
 
-  const isBlackKey = React.useMemo(() => [1, 4, 6, 9, 11].includes(freq.index), [freq])
+  const isBlackKey = React.useMemo(() => [1, 4, 6, 9, 11].includes(freq.noteIndexWithinOctave), [freq])
   const displayHeight = React.useMemo(() => logView ? logHeight: height, [height, logHeight, logView])
-  const roundedFreq = React.useMemo(() => (Math.round(getAbsoluteFreq(freq) * 100) / 100).toFixed(2), [freq])
+  const roundedFreq = React.useMemo(() => (Math.round(freq.getHertz() * 100) / 100).toFixed(2), [freq])
 
   const backgroundColor = React.useMemo(() => {
     const octaveMult = settings.octaveNum / settings.octaveDen
     const lowestHue = 200
     const hueRange = 180
-    const hue = lowestHue + (octaveMult - freq.ratio) / octaveMult * hueRange
+    const hue = lowestHue + (octaveMult - freq.ratio.getValue()) / octaveMult * hueRange
     return `hsl(${hue}, 70%, 65%)`
-  }, [freq.ratio, settings.octaveDen, settings.octaveNum])
+  }, [freq, settings.octaveDen, settings.octaveNum])
 
   const animateContainer = React.useMemo(() => ({ x, opacity: freq.visible ? 1 : 0, y : freq.visible ? 0 : -16 }), [freq.visible, x])
 
@@ -44,7 +44,7 @@ export const String = (props: IStringProps) => {
 
   const stringLabel: React.CSSProperties = React.useMemo(() => ({ width: '0px', visibility: isSemiHover ? 'visible' : 'hidden' }), [isSemiHover])
   const pianoKeyNoteString = React.useMemo(() => {
-    switch (freq.index) {
+    switch (freq.noteIndexWithinOctave) {
       case 0: return 'A'
       case 2: return 'B';
       case 3: return 'C';
@@ -53,7 +53,7 @@ export const String = (props: IStringProps) => {
       case 8: return 'F';
       case 10: return 'G';
     }
-  }, [freq.index])
+  }, [freq.noteIndexWithinOctave])
   const pianoKey: React.CSSProperties = React.useMemo(() => ({ backgroundColor: isBlackKey ? 'black' : '#fbf7f5' }), [isBlackKey])
 
   return (<motion.div onHoverStart={onHoverStart} onHoverEnd={onHoverEnd}>
