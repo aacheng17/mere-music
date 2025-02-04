@@ -1,26 +1,27 @@
 import React from 'react'
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, delay, motion, TargetAndTransition } from "motion/react"
 import { Freq, ScaleType, stringWidth } from '../Models';
 import { IStringSettingsModel } from './StringSettings';
+import { makeStringAnimData } from './StringAnim';
+import { IAnimProps } from './animation';
 
 export interface IStringProps {
   layoutId: string,
   freq: Freq,
   height: number,
-  logHeight: number,
   x: number,
-  logView: boolean,
   isSemiHover: boolean,
   onHoverStart?: ()=>void,
   onHoverEnd?: ()=>void,
-  settings: IStringSettingsModel
+  settings: IStringSettingsModel,
+  animProps: IAnimProps,
+  triggerAnim: number
 }
 
 export const String = (props: IStringProps) => {
-  const { layoutId, freq, height, logHeight, x, logView, isSemiHover, onHoverStart, onHoverEnd, settings } = props
+  const { layoutId, freq, height, x, isSemiHover, onHoverStart, onHoverEnd, settings, animProps, triggerAnim } = props
 
   const isBlackKey = React.useMemo(() => [1, 4, 6, 9, 11].includes(freq.noteIndexWithinOctave), [freq])
-  const displayHeight = React.useMemo(() => logView ? logHeight: height, [height, logHeight, logView])
   const roundedFreq = React.useMemo(() => (Math.round(freq.getHertz() * 100) / 100).toFixed(2), [freq])
 
   const backgroundColor = React.useMemo(() => {
@@ -31,16 +32,36 @@ export const String = (props: IStringProps) => {
     return `hsl(${hue}, 70%, 65%)`
   }, [freq, settings.octaveDen, settings.octaveNum])
 
+  const [ delays, setDelays ] = React.useState<(() => void)[]>([])
+  const [ animate, setAnimate ] = React.useState<TargetAndTransition>()
+  React.useEffect(() => {
+    delays.forEach(delay => delay())
+    const newDelays: (() => void)[] = []
+
+    if (animProps) {
+      const animData = makeStringAnimData({ ...animProps, height })
+      setAnimate(animData.frames[0].animate)
+      animData.frames.forEach(frame => {
+        newDelays.push(delay(() => {setAnimate(frame.animate)}, animData.startTime + frame.time))
+      })
+      newDelays.push(delay(() => setDelays([]), animData.startTime + animData.frames[animData.frames.length-1].time + 1))
+    }
+
+    setDelays(newDelays)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [triggerAnim])
+
   const animateContainer = React.useMemo(() => ({ x, opacity: freq.visible ? 1 : 0, y : freq.visible ? 0 : -16 }), [freq.visible, x])
 
-  const animate = React.useMemo(() => {
+  const gestureAnimate = React.useMemo(() => {
+    if (delays.length) { return {} }
     return {
       y: isSemiHover ? -8 : 0,
       transition: {
         y: { duration: 0.1 }
       }
     }
-  }, [isSemiHover])
+  }, [delays.length, isSemiHover])
 
   const stringLabel: React.CSSProperties = React.useMemo(() => ({ width: '0px', visibility: isSemiHover ? 'visible' : 'hidden' }), [isSemiHover])
   const pianoKeyNoteString = React.useMemo(() => {
@@ -56,10 +77,11 @@ export const String = (props: IStringProps) => {
   }, [freq.noteIndexWithinOctave])
   const pianoKey: React.CSSProperties = React.useMemo(() => ({ backgroundColor: isBlackKey ? 'black' : '#fbf7f5' }), [isBlackKey])
 
-  return (<motion.div onHoverStart={onHoverStart} onHoverEnd={onHoverEnd}>
-    <motion.div style={stringContainer} animate={animateContainer}>
+  return animate ? (<motion.div onHoverStart={onHoverStart} onHoverEnd={onHoverEnd} initial={false}>
+    <motion.div style={stringContainer} animate={animateContainer} initial={false}>
       <motion.div style={stringLabel} animate={{ rotate: -90 }}>{roundedFreq}</motion.div>
       <motion.div
+        initial={false}
         layoutId={layoutId}
         style={{
           width: stringWidth,
@@ -67,8 +89,10 @@ export const String = (props: IStringProps) => {
           borderRadius: 5,
         }}
         animate={{
+          opacity: 1,
+          height: height,
           ...animate,
-          height: displayHeight
+          ...gestureAnimate
         }}
       />
       <AnimatePresence>
@@ -78,11 +102,11 @@ export const String = (props: IStringProps) => {
             animate={{ ...animate, height: '48px', width: stringWidth }}
             exit={{ opacity: 0, scale: 0 }}
           />
-          <motion.div style={pianoKeyLabel}>{pianoKeyNoteString}</motion.div>
+          {<motion.div style={pianoKeyLabel}>{pianoKeyNoteString}</motion.div>}
         </motion.div>}
       </AnimatePresence>
     </motion.div>
-  </motion.div>)
+  </motion.div>) : null
 }
 
 const stringContainer: React.CSSProperties = {

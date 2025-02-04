@@ -22,7 +22,6 @@ export const PythagoreanConstruction = ( props: { settings: IStringSettingsModel
       ratio.multD(settings.baseDen)
       while (ratio.getValue() > octaveMult) { ratio.multD(octaveMult) }
       while (ratio.getValue() < 1 / octaveMult) { ratio.multN(octaveMult) }
-      console.log(ratio.getValue())
       ratios.push(ratio)
     }
     ratios.sort((a, b) => a.getValue() < b.getValue() ? -1 : 1)

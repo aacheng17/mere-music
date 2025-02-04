@@ -29,7 +29,7 @@ export const getAllFreqs = (ratios: Ratio[], referenceNote: number, octaveMult: 
 
   let freqs: Freq[] = []
   octaveRoots.forEach((root, octaveIndex) => {
-    freqs = [ ...freqs, ...ratios.map((ratio, i) => new Freq(ratio, root, octaveIndex, i, false)) ]
+    freqs = [ ...freqs, ...ratios.map((ratio, i) => new Freq(ratio, root, octaveIndex, i, true)) ]
   })
 
   return freqs

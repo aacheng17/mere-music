@@ -14,7 +14,7 @@ export const SelectInput = <T extends string | number | readonly string[] | unde
       onChange={e => onChange(e.target.value as T)}
     >
       {options.map(t => {
-        return (<motion.option>{t}</motion.option>)
+        return (<motion.option key={t?.toString()}>{t}</motion.option>)
       })}
     </motion.select>
   </motion.div>
